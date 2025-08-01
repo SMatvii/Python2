@@ -57,7 +57,6 @@ def order_form():
 
 @app.route('/admin')
 def admin_dashboard():
-    """Головна сторінка адміністративної панелі"""
     total_pizzas = Pizza.query.count()
     available_pizzas = Pizza.query.filter_by(available=True).count()
     total_orders = Order.query.count()
