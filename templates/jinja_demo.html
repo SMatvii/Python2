@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}Демо Jinja2 - Піцерія Oderman{% endblock %}
+
+{% block content %}
+<div class="jinja-demo">
+    <h2 class="page-title">Демонстрація можливостей Jinja2</h2>
+    
+    <div class="demo-section">
+        <h3>1. Змінні та фільтри</h3>
+        <div class="demo-content">
+            <p><strong>Поточний рік:</strong> {{ get_current_year() }}</p>
+            <p><strong>Назва піцерії:</strong> {{ "Піцерія Oderman" | upper }}</p>
+            <p><strong>Ціна з фільтром:</strong> {{ 250 | format_price }}</p>
+            <p><strong>Довжина рядка:</strong> {{ "Jinja2" | length }}</p>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>2. Умовні конструкції</h3>
+        <div class="demo-content">
+            {% set hour = 14 %}
+            {% if hour < 12 %}
+                <p class="greeting morning">Доброго ранку! Час для сніданку.</p>
+            {% elif hour < 18 %}
+                <p class="greeting afternoon">Добрий день! Час для обіду.</p>
+            {% else %}
+                <p class="greeting evening">Добрий вечір! Час для вечері.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>3. Цикли з різними прикладами</h3>
+        <div class="demo-content">
+            <h4>Список категорій піц:</h4>
+            <ul class="categories-list">
+                {% for category in ['Класичні', 'Преміум', 'Вегетаріанські'] %}
+                <li class="category-item">
+                    {{ loop.index }}. {{ category }}
+                    {% if loop.first %}<span class="badge">Перша</span>{% endif %}
+                    {% if loop.last %}<span class="badge">Остання</span>{% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            
+            <h4>Топ-3 піци:</h4>
+            {% set top_pizzas = [
+                {'name': 'Маргарита', 'rating': 4.8},
+                {'name': 'Пепероні', 'rating': 4.9},
+                {'name': 'М\'ясна', 'rating': 4.7}
+            ] %}
+            
+            <div class="top-pizzas">
+                {% for pizza in top_pizzas %}
+                <div class="pizza-rating">
+                    <span class="pizza-name">{{ pizza.name }}</span>
+                    <span class="rating">
+                        {% for i in range(pizza.rating | int) %}★{% endfor %}
+                        {% if pizza.rating % 1 %}⭐{% endif %}
+                        {{ pizza.rating }}
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>4. Макроси з параметрами</h3>
+        <div class="demo-content">
+            {% macro render_status_badge(status, text) %}
+            <span class="status-badge status-{{ status }}">{{ text }}</span>
+            {% endmacro %}
+            
+            <p>Статуси замовлень:</p>
+            <div class="status-examples">
+                {{ render_status_badge('pending', 'Очікує') }}
+                {{ render_status_badge('cooking', 'Готується') }}
+                {{ render_status_badge('delivery', 'Доставляється') }}
+                {{ render_status_badge('completed', 'Доставлено') }}
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>5. Робота з датами та часом</h3>
+        <div class="demo-content">
+            {% set now = moment() if moment else 'Функція moment недоступна' %}
+            <p><strong>Поточний час:</strong> {{ now }}</p>
+            
+            {% set working_hours = [
+                {'day': 'Понеділок-П\'ятниця', 'hours': '10:00 - 22:00'},
+                {'day': 'Субота-Неділя', 'hours': '11:00 - 23:00'}
+            ] %}
+            
+            <h4>Години роботи:</h4>
+            <table class="working-hours-table">
+                {% for schedule in working_hours %}
+                <tr>
+                    <td>{{ schedule.day }}</td>
+                    <td>{{ schedule.hours }}</td>
+                </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>6. Математичні операції</h3>
+        <div class="demo-content">
+            {% set pizza_price = 300 %}
+            {% set discount = 0.15 %}
+            {% set final_price = pizza_price * (1 - discount) %}
+            
+            <div class="price-calculation">
+                <p><strong>Базова ціна:</strong> {{ pizza_price }} грн</p>
+                <p><strong>Знижка:</strong> {{ (discount * 100) | int }}%</p>
+                <p><strong>Фінальна ціна:</strong> {{ final_price | round(2) }} грн</p>
+                <p><strong>Ви економите:</strong> {{ pizza_price - final_price | round(2) }} грн</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="demo-section">
+        <h3>7. Наслідування та блоки</h3>
+        <div class="demo-content">
+            <p>Цей шаблон наслідує базовий шаблон <code>base.html</code> та використовує такі блоки:</p>
+            <ul class="blocks-list">
+                <li><code>title</code> - заголовок сторінки</li>
+                <li><code>content</code> - основний вміст</li>
+                <li><code>extra_css</code> - додаткові стилі</li>
+                <li><code>extra_js</code> - додатковий JavaScript</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.jinja-demo {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.demo-section {
+    background: white;
+    margin: 20px 0;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #ff6b6b;
+}
+
+.demo-section h3 {
+    color: #ff6b6b;
+    margin-bottom: 15px;
+    font-size: 1.4rem;
+}
+
+.demo-content {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-top: 15px;
+}
+
+.greeting {
+    padding: 15px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+.greeting.morning { background: #fff3cd; color: #856404; }
+.greeting.afternoon { background: #d4edda; color: #155724; }
+.greeting.evening { background: #d1ecf1; color: #0c5460; }
+
+.categories-list {
+    list-style: none;
+    padding: 0;
+}
+
+.category-item {
+    padding: 10px;
+    margin: 5px 0;
+    background: white;
+    border-radius: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.badge {
+    background: #ff6b6b;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+}
+
+.top-pizzas {
+    display: grid;
+    gap: 10px;
+}
+
+.pizza-rating {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background: white;
+    border-radius: 8px;
+}
+
+.pizza-name {
+    font-weight: bold;
+}
+
+.rating {
+    color: #ffd700;
+}
+
+.status-examples {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.status-badge {
+    padding: 8px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+}
+
+.status-pending { background: #fff3cd; color: #856404; }
+.status-cooking { background: #d4edda; color: #155724; }
+.status-delivery { background: #d1ecf1; color: #0c5460; }
+.status-completed { background: #d1e7dd; color: #0f5132; }
+
+.working-hours-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.working-hours-table td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.working-hours-table td:first-child {
+    font-weight: bold;
+    color: #333;
+}
+
+.price-calculation {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #27ae60;
+}
+
+.price-calculation p {
+    margin: 8px 0;
+    font-size: 1.1rem;
+}
+
+.blocks-list {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.blocks-list code {
+    background: #e9ecef;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    color: #e83e8c;
+}
+
+@media (max-width: 768px) {
+    .demo-section {
+        padding: 15px;
+    }
+    
+    .status-examples {
+        justify-content: center;
+    }
+    
+    .pizza-rating {
+        flex-direction: column;
+        text-align: center;
+        gap: 5px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Демо Jinja2 завантажено!');
+    const sections = document.querySelectorAll('.demo-section');
+    
+    sections.forEach((section, index) => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            section.style.transition = 'all 0.5s ease';
+            section.style.opacity = '1';
+            section.style.transform = 'translateY(0)';
+        }, index * 200);
+    });
+});
+</script>
+{% endblock %}

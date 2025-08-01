@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block title %}Головна - Піцерія Oderman{% endblock %}
+
+{% block navigation %}
+{{ super() }}
+{% endblock %}
+
+{% block content %}
+<div class="welcome-section">
+    <div class="welcome-text">
+        <h2 class="welcome-title">Ласкаво просимо до Oderman!</h2>
+        <p class="welcome-description">
+            Ми готуємо найсмачнішу піцу в місті з найкращих інгредієнтів. 
+            Наші майстри піци створюють кулінарні шедеври спеціально для вас!
+        </p>
+    </div>
+    <div class="weather-widget">
+        {% if weather and weather.success %}
+        <div class="weather-info">
+            <div class="weather-main">
+                <span class="weather-icon">{{ weather.emoji }}</span>
+                <div class="weather-details">
+                    <div class="temperature">{{ weather.temperature }}°C</div>
+                    <div class="description">{{ weather.description }}</div>
+                    <div class="city">{{ weather.city }}</div>
+                </div>
+            </div>
+            <div class="weather-extra">
+                <span>Відчувається як {{ weather.feels_like }}°C</span>
+                <span>Вологість: {{ weather.humidity }}%</span>
+                <span>Вітер: {{ weather.wind_speed }} м/с</span>
+            </div>
+        </div>
+        <div class="pizza-recommendation">
+            <h3>{{ recommendation.title }}</h3>
+            <p>{{ recommendation.message }}</p>
+            {% if recommendation.recommended_pizza %}
+            <div class="recommended-pizza">
+                <strong>Рекомендуємо: {{ recommendation.recommended_pizza }}</strong>
+                {% if recommendation.reason %}
+                <span class="reason">({{ recommendation.reason }})</span>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        {% else %}
+        <div class="weather-error">
+            <span class="weather-icon">🌤️</span>
+            <div class="weather-details">
+                <div class="description">Інформація про погоду недоступна</div>
+                {% if weather and weather.error %}
+                <div class="error-message">{{ weather.error }}</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="pizza-image">
+        <img src="{{ url_for('static', filename='images/pizza.jpg') }}" alt="Смачна піца" class="pizza-photo">
+    </div>
+    
+    <div class="menu-section">
+        <h2 class="menu-title">МЕНЮ</h2>
+        <p class="menu-description">Обирайте з нашого розмаїття смачних піц!</p>
+        <a href="{{ url_for('menu') }}" class="menu-button">Переглянути меню</a>
+    </div>
+
+    <div class="features-section">
+        <div class="feature-card">
+            <h3>🍕 Свіжі інгредієнти</h3>
+            <p>Використовуємо тільки найсвіжіші та якісні продукти</p>
+        </div>
+        <div class="feature-card">
+            <h3>🚚 Швидка доставка</h3>
+            <p>Доставимо вашу піцу гарячою за 30 хвилин</p>
+        </div>
+        <div class="feature-card">
+            <h3>👨‍🍳 Досвідчені кухарі</h3>
+            <p>Наші піцайоло мають багаторічний досвід</p>
+        </div>
+    </div>
+    
+    <div class="poll-section">
+        <h3>🗳️ Ваша думка важлива!</h3>
+        <p>Допоможіть нам покращити наше меню - візьміть участь в опитуванні!</p>
+        <a href="{{ url_for('poll_page') }}" class="poll-button">Взяти участь в опитуванні</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Управління піцами - Адміністрація{% endblock %}
+
+{% block content %}
+<div class="admin-pizzas">
+    <h2 class="page-title">Управління піцами</h2>
+    
+    <div class="admin-nav">
+        <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-link">Головна</a>
+        <a href="{{ url_for('admin_pizzas') }}" class="admin-nav-link active">Управління піцами</a>
+        <a href="{{ url_for('admin_add_pizza') }}" class="admin-nav-link add-btn">➕ Додати піцу</a>
+    </div>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+    
+    <div class="pizzas-table-container">
+        <table class="pizzas-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Назва</th>
+                    <th>Інгредієнти</th>
+                    <th>Ціна</th>
+                    <th>Категорія</th>
+                    <th>Розмір</th>
+                    <th>Статус</th>
+                    <th>Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for pizza in pizzas %}
+                <tr class="pizza-row {% if not pizza.available %}unavailable{% endif %}">
+                    <td>{{ pizza.id }}</td>
+                    <td>
+                        <div class="pizza-name-cell">
+                            <strong>{{ pizza.name }}</strong>
+                            {% if pizza.popular %}
+                            <span class="popular-badge">🔥 Популярна</span>
+                            {% endif %}
+                        </div>
+                    </td>
+                    <td class="ingredients-cell">{{ pizza.ingredients[:50] }}{% if pizza.ingredients|length > 50 %}...{% endif %}</td>
+                    <td class="price-cell">{{ pizza.price }} грн</td>
+                    <td>
+                        <span class="category-tag category-{{ pizza.category }}">
+                            {{ pizza.category_display }}
+                        </span>
+                    </td>
+                    <td>{{ pizza.size }}</td>
+                    <td>
+                        {% if pizza.available %}
+                        <span class="status-badge status-available">Доступна</span>
+                        {% else %}
+                        <span class="status-badge status-unavailable">Недоступна</span>
+                        {% endif %}
+                    </td>
+                    <td class="actions-cell">
+                        <a href="{{ url_for('admin_edit_pizza', pizza_id=pizza.id) }}" class="action-btn edit">✏️</a>
+                        <form method="POST" action="{{ url_for('admin_delete_pizza', pizza_id=pizza.id) }}" 
+                              style="display: inline;" 
+                              onsubmit="return confirm('Ви впевнені, що хочете видалити піцу {{ pizza.name }}?')">
+                            <button type="submit" class="action-btn delete">🗑️</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    {% if not pizzas %}
+    <div class="empty-state">
+        <h3>Немає піц в базі даних</h3>
+        <p>Додайте першу піцу, щоб почати!</p>
+        <a href="{{ url_for('admin_add_pizza') }}" class="action-btn primary">Додати піцу</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.admin-pizzas {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.admin-nav {
+    display: flex;
+    gap: 10px;
+    margin: 20px 0;
+    flex-wrap: wrap;
+}
+
+.admin-nav-link {
+    padding: 10px 20px;
+    background: #f8f9fa;
+    color: #333;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.admin-nav-link.active,
+.admin-nav-link:hover {
+    background: #ff6b6b;
+    color: white;
+}
+
+.admin-nav-link.add-btn {
+    background: #27ae60;
+    color: white;
+}
+
+.flash-messages {
+    margin: 20px 0;
+}
+
+.flash-message {
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.flash-success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.flash-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.pizzas-table-container {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin: 20px 0;
+}
+
+.pizzas-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.pizzas-table th {
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    color: white;
+    padding: 15px 10px;
+    text-align: left;
+    font-weight: bold;
+}
+
+.pizzas-table td {
+    padding: 15px 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.pizza-row.unavailable {
+    opacity: 0.6;
+    background: #f8f9fa;
+}
+
+.pizza-name-cell {
+    min-width: 150px;
+}
+
+.ingredients-cell {
+    max-width: 200px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.price-cell {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.actions-cell {
+    white-space: nowrap;
+}
+
+.action-btn {
+    display: inline-block;
+    padding: 8px 12px;
+    margin: 0 2px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.action-btn.edit {
+    background: #3498db;
+    color: white;
+}
+
+.action-btn.delete {
+    background: #e74c3c;
+    color: white;
+}
+
+.action-btn.primary {
+    background: #27ae60;
+    color: white;
+    padding: 15px 25px;
+}
+
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.status-available {
+    background: #d4edda;
+    color: #155724;
+}
+
+.status-unavailable {
+    background: #f8d7da;
+    color: #721c24;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.empty-state h3 {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.empty-state p {
+    color: #888;
+    margin-bottom: 25px;
+}
+
+@media (max-width: 768px) {
+    .pizzas-table-container {
+        overflow-x: auto;
+    }
+    
+    .pizzas-table {
+        min-width: 800px;
+    }
+    
+    .admin-nav {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

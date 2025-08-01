@@ -1,0 +1,650 @@
+{% extends "base.html" %}
+
+{% block title %}Оформити замовлення - Піцерія Oderman{% endblock %}
+
+{% block content %}
+<div class="order-container">
+    <h2 class="page-title">Оформлення замовлення</h2>
+    
+    <div class="order-layout">
+        <div class="menu-section">
+            <h3>Оберіть піци</h3>
+            <div class="pizzas-grid" id="pizzas-grid">
+                <div class="loading">🍕 Завантаження піц...</div>
+            </div>
+        </div>
+        
+        <div class="cart-section">
+            <h3>Ваше замовлення</h3>
+            <div class="cart" id="cart">
+                <div class="empty-cart">
+                    <p>🛒 Кошик порожній</p>
+                    <p>Оберіть піци з меню</p>
+                </div>
+            </div>
+            
+            <div class="cart-total" id="cart-total" style="display: none;">
+                <div class="total-line">
+                    <span>Загальна сума:</span>
+                    <span class="total-amount">0 грн</span>
+                </div>
+            </div>
+            
+            <div class="order-form" id="order-form" style="display: none;">
+                <h4>📋 Дані для доставки</h4>
+                <form id="checkout-form">
+                    <div class="form-group">
+                        <label for="customer-name">👤 Ім'я *</label>
+                        <input type="text" id="customer-name" name="name" required placeholder="Введіть ваше ім'я">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-phone">📞 Телефон *</label>
+                        <input type="tel" id="customer-phone" name="phone" required placeholder="+380XXXXXXXXX">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-address">🏠 Адреса доставки *</label>
+                        <textarea id="customer-address" name="address" required placeholder="Вулиця, будинок, квартира"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-email">📧 Email</label>
+                        <input type="email" id="customer-email" name="email" placeholder="your@email.com (необов'язково)">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customer-notes">💭 Коментар</label>
+                        <textarea id="customer-notes" name="notes" placeholder="Побажання щодо приготування, час доставки тощо"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="order-btn" id="place-order-btn">
+                        🛒 Оформити замовлення
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="order-modal">
+    <div class="modal-content">
+        <span class="modal-close">&times;</span>
+        <div class="modal-body" id="modal-body"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.order-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.order-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 40px;
+    margin-top: 30px;
+}
+
+.menu-section h3,
+.cart-section h3 {
+    color: #ff6b6b;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ff6b6b;
+    padding-bottom: 10px;
+}
+
+.loading {
+    text-align: center;
+    color: #999;
+    padding: 40px;
+    font-size: 1.2rem;
+}
+
+/* Меню піц */
+.pizzas-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.pizza-card {
+    background: white;
+    border: 2px solid #e0e0e0;
+    border-radius: 15px;
+    padding: 20px;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.pizza-card:hover {
+    border-color: #ff6b6b;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(255, 107, 107, 0.2);
+}
+
+.pizza-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.pizza-name {
+    color: #ff6b6b;
+    margin: 0;
+    font-size: 1.2rem;
+}
+
+.popular-badge {
+    background: #ff6b6b;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+}
+
+.pizza-ingredients {
+    color: #666;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.pizza-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.pizza-price {
+    font-weight: bold;
+    color: #27ae60;
+    font-size: 1.1rem;
+}
+
+.add-to-cart-btn {
+    background: linear-gradient(45deg, #ff6b6b, #feca57);
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.add-to-cart-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+}
+
+/* Кошик */
+.cart-section {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 15px;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+}
+
+.empty-cart {
+    text-align: center;
+    color: #999;
+    padding: 40px 20px;
+}
+
+.cart-item {
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cart-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.cart-item-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.remove-item-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cart-item-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.quantity-btn {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.quantity-display {
+    font-weight: bold;
+    min-width: 30px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
+.cart-item-total {
+    font-weight: bold;
+    color: #27ae60;
+}
+
+.cart-total {
+    border-top: 2px solid #ddd;
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+.total-line {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #333;
+}
+
+.total-amount {
+    color: #27ae60;
+}
+
+/* Форма */
+.order-form {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #ddd;
+}
+
+.order-form h4 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.form-group input,
+.form-group textarea {
+    width: 100%;
+    padding: 12px;
+    border: 2px solid #ddd;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    box-sizing: border-box;
+}
+
+.form-group input:focus,
+.form-group textarea:focus {
+    outline: none;
+    border-color: #ff6b6b;
+}
+
+.order-btn {
+    width: 100%;
+    background: linear-gradient(45deg, #27ae60, #2ecc71);
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.order-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(39, 174, 96, 0.3);
+}
+
+.order-btn:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Модальне вікно */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.modal-content {
+    background: white;
+    margin: 10% auto;
+    padding: 30px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 500px;
+    position: relative;
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 2rem;
+    cursor: pointer;
+    color: #999;
+}
+
+.modal-close:hover {
+    color: #333;
+}
+
+.success-message {
+    text-align: center;
+    color: #27ae60;
+}
+
+.error-message {
+    text-align: center;
+    color: #e74c3c;
+}
+
+.order-summary {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin: 20px 0;
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+    .order-layout {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .cart-section {
+        position: static;
+    }
+    
+    .pizzas-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let pizzasData = [];
+
+let cart = {};
+let total = 0;
+
+async function loadPizzas() {
+    try {
+        const response = await fetch('/api/pizzas');
+        pizzasData = await response.json();
+        renderPizzas();
+    } catch (error) {
+        console.error('Помилка завантаження піц:', error);
+        document.getElementById('pizzas-grid').innerHTML = '<div class="error">❌ Помилка завантаження піц</div>';
+    }
+}
+
+function renderPizzas() {
+    const container = document.getElementById('pizzas-grid');
+    
+    if (pizzasData.length === 0) {
+        container.innerHTML = '<div class="error">🍕 Піци не знайдено</div>';
+        return;
+    }
+    
+    container.innerHTML = pizzasData.map(pizza => `
+        <div class="pizza-card">
+            <div class="pizza-header">
+                <h4 class="pizza-name">${pizza.name}</h4>
+                ${pizza.popular ? '<span class="popular-badge">🔥 Хіт</span>' : ''}
+            </div>
+            <p class="pizza-ingredients">${pizza.ingredients}</p>
+            <div class="pizza-footer">
+                <span class="pizza-price">${pizza.price} грн</span>
+                <button class="add-to-cart-btn" onclick="addToCart(${pizza.id})">
+                    🛒 Додати
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function addToCart(pizzaId) {
+    const pizza = pizzasData.find(p => p.id === pizzaId);
+    if (!pizza) return;
+    
+    if (cart[pizzaId]) {
+        cart[pizzaId].quantity += 1;
+    } else {
+        cart[pizzaId] = {
+            pizza: pizza,
+            quantity: 1
+        };
+    }
+    
+    updateCartDisplay();
+}
+
+function updateQuantity(pizzaId, action) {
+    if (!cart[pizzaId]) return;
+    
+    if (action === 'increase') {
+        cart[pizzaId].quantity += 1;
+    } else if (action === 'decrease') {
+        cart[pizzaId].quantity -= 1;
+        if (cart[pizzaId].quantity <= 0) {
+            delete cart[pizzaId];
+        }
+    }
+    
+    updateCartDisplay();
+}
+
+function removeFromCart(pizzaId) {
+    delete cart[pizzaId];
+    updateCartDisplay();
+}
+
+function updateCartDisplay() {
+    const cartContainer = document.getElementById('cart');
+    const cartTotal = document.getElementById('cart-total');
+    const orderForm = document.getElementById('order-form');
+    
+    const cartItems = Object.keys(cart);
+    
+    if (cartItems.length === 0) {
+        cartContainer.innerHTML = `
+            <div class="empty-cart">
+                <p>🛒 Кошик порожній</p>
+                <p>Оберіть піци з меню</p>
+            </div>
+        `;
+        cartTotal.style.display = 'none';
+        orderForm.style.display = 'none';
+        return;
+    }
+    
+    let newTotal = 0;
+    const cartHTML = cartItems.map(pizzaId => {
+        const item = cart[pizzaId];
+        const itemTotal = parseInt(item.pizza.price) * item.quantity;
+        newTotal += itemTotal;
+        
+        return `
+            <div class="cart-item">
+                <div class="cart-item-header">
+                    <span class="cart-item-name">${item.pizza.name}</span>
+                    <button class="remove-item-btn" onclick="removeFromCart(${pizzaId})">×</button>
+                </div>
+                <div class="cart-item-controls">
+                    <div class="quantity-controls">
+                        <button class="quantity-btn" onclick="updateQuantity(${pizzaId}, 'decrease')">−</button>
+                        <span class="quantity-display">${item.quantity}</span>
+                        <button class="quantity-btn" onclick="updateQuantity(${pizzaId}, 'increase')">+</button>
+                    </div>
+                    <span class="cart-item-total">${itemTotal} грн</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    cartContainer.innerHTML = cartHTML;
+    cartTotal.style.display = 'block';
+    cartTotal.querySelector('.total-amount').textContent = `${newTotal} грн`;
+    orderForm.style.display = 'block';
+    
+    total = newTotal;
+}
+
+async function placeOrder(event) {
+    event.preventDefault();
+    
+    const form = document.getElementById('checkout-form');
+    const formData = new FormData(form);
+    
+    const orderData = {
+        customer: {
+            name: formData.get('name'),
+            phone: formData.get('phone'),
+            address: formData.get('address'),
+            email: formData.get('email') || '',
+            notes: formData.get('notes') || ''
+        },
+        items: Object.keys(cart).map(pizzaId => ({
+            pizza_id: parseInt(pizzaId),
+            quantity: cart[pizzaId].quantity
+        }))
+    };
+    
+    const orderBtn = document.getElementById('place-order-btn');
+    orderBtn.disabled = true;
+    orderBtn.textContent = '⏳ Обробка...';
+    
+    try {
+        const response = await fetch('/api/order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(orderData)
+        });
+        
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            showModal(`
+                <h3 class="success-message">✅ Замовлення успішно оформлено!</h3>
+                <div class="order-summary">
+                    <p><strong>📋 Номер:</strong> ${result.order_id}</p>
+                    <p><strong>💰 Сума:</strong> ${result.total_amount} грн</p>
+                    <p><strong>👤 Клієнт:</strong> ${orderData.customer.name}</p>
+                    <p><strong>📞 Телефон:</strong> ${orderData.customer.phone}</p>
+                    <p><strong>🏠 Адреса:</strong> ${orderData.customer.address}</p>
+                </div>
+                <p style="text-align: center; color: #666;">
+                    Ми зв'яжемося з вами протягом 15 хвилин для підтвердження замовлення.
+                </p>
+            `);
+            
+            cart = {};
+            updateCartDisplay();
+            form.reset();
+        } else {
+            showModal(`
+                <h3 class="error-message">❌ Помилка</h3>
+                <p style="text-align: center;">${result.message}</p>
+            `);
+        }
+    } catch (error) {
+        showModal(`
+            <h3 class="error-message">⚠️ Помилка мережі</h3>
+            <p style="text-align: center;">Не вдалося оформити замовлення. Перевірте з'єднання та спробуйте ще раз.</p>
+        `);
+    } finally {
+        orderBtn.disabled = false;
+        orderBtn.textContent = '🛒 Оформити замовлення';
+    }
+}
+
+function showModal(content) {
+    document.getElementById('modal-body').innerHTML = content;
+    document.getElementById('order-modal').style.display = 'block';
+}
+
+function closeModal() {
+    document.getElementById('order-modal').style.display = 'none';
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadPizzas();
+    
+    document.getElementById('checkout-form').addEventListener('submit', placeOrder);
+    document.querySelector('.modal-close').addEventListener('click', closeModal);
+    
+    window.addEventListener('click', (e) => {
+        const modal = document.getElementById('order-modal');
+        if (e.target === modal) {
+            closeModal();
+        }
+    });
+});
+</script>
+{% endblock %}

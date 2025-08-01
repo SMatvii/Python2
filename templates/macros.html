@@ -1,0 +1,45 @@
+{% macro render_pizza_card(pizza) %}
+<div class="pizza-card" data-category="{{ pizza.category }}">
+    <div class="pizza-card-header">
+        <h3 class="pizza-card-name">{{ pizza.name }}</h3>
+        {% if pizza.popular %}
+        <span class="popular-badge">🔥 Популярна</span>
+        {% endif %}
+    </div>
+    
+    <div class="pizza-card-body">
+        <p class="pizza-card-ingredients">{{ pizza.ingredients }}</p>
+        <div class="pizza-card-info">
+            <span class="pizza-card-size">{{ pizza.size }}</span>
+            <span class="category-tag category-{{ pizza.category }}">
+                {{ pizza.category_display }}
+            </span>
+        </div>
+    </div>
+    
+    <div class="pizza-card-footer">
+        <span class="pizza-card-price">{{ pizza.price | format_price }}</span>
+        <button class="add-to-cart-btn" data-pizza="{{ pizza.name }}" data-price="{{ pizza.price }}">
+            Додати до кошика
+        </button>
+    </div>
+</div>
+{% endmacro %}
+
+{% macro render_feature_card(icon, title, description) %}
+<div class="feature-card">
+    <h3>{{ icon }} {{ title }}</h3>
+    <p>{{ description }}</p>
+</div>
+{% endmacro %}
+
+{% macro render_navigation(current_page='') %}
+<nav class="navigation">
+    <a href="{{ url_for('index') }}" class="nav-link {{ 'active' if current_page == 'index' else '' }}">
+        Головна
+    </a>
+    <a href="{{ url_for('menu') }}" class="nav-link {{ 'active' if current_page == 'menu' else '' }}">
+        Меню
+    </a>
+</nav>
+{% endmacro %}

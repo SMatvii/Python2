@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Піцерія Oderman{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1 class="title">
+                <a href="{{ url_for('index') }}" class="title-link">Піцерія Oderman</a>
+            </h1>
+            {% block subtitle %}
+            <p class="subtitle">Найсмачніша піца в місті!</p>
+            {% endblock %}
+            
+            {% block navigation %}
+            <nav class="navigation">
+                <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint == 'index' %}active{% endif %}">🏠 Головна</a>
+                <a href="{{ url_for('menu') }}" class="nav-link {% if request.endpoint == 'menu' %}active{% endif %}">🍕 Меню</a>
+                <a href="{{ url_for('order_form') }}" class="nav-link {% if request.endpoint == 'order_form' %}active{% endif %}">🛒 Замовлення</a>
+                <a href="{{ url_for('poll_page') }}" class="nav-link {% if request.endpoint == 'poll_page' %}active{% endif %}">📊 Опитування</a>
+                <a href="{{ url_for('admin_dashboard') }}" class="nav-link {% if 'admin' in request.endpoint %}active{% endif %}">👨‍💼 Адмін</a>
+            </nav>
+            {% endblock %}
+        </header>
+
+        <main class="main">
+            {% block content %}{% endblock %}
+        </main>
+
+        <footer class="footer">
+            {% block footer %}
+            <p>&copy; {{ get_current_year() }} Піцерія Oderman. Всі права захищені.</p>
+            <p>Телефон: +380 (44) 123-45-67 | Email: info@oderman.ua</p>
+            {% endblock %}
+        </footer>
+    </div>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
